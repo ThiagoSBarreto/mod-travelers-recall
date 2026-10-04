@@ -3,6 +3,20 @@
 
 namespace
 {
+    template <typename S>
+    bool IsClientlessSessionImpl(S const* session)
+    {
+        if constexpr (requires { session->IsHeadless(); })
+            return session->IsHeadless();
+        else
+            return session->IsBot();
+    }
+
+    bool IsClientlessSession(WorldSession const* session)
+    {
+        return session && IsClientlessSessionImpl(session);
+    }
+
     std::string BuildCooldownRemainingText(uint32 remainingSeconds)
     {
         uint32 hours = remainingSeconds / 3600;
@@ -109,7 +123,7 @@ bool TravelersRecallCommandScript::SendListForPlayer(Player* player)
     return true;
 }
 
-bool TravelersRecallCommandScript::HandleListCommand(ChatHandler* handler, char const* args)
+bool TravelersRecallCommandScript::HandleListCommand(ChatHandler* handler, char const* /*args*/)
 {
     Player* player = handler->GetPlayer();
     return SendListForPlayer(player);
@@ -205,7 +219,7 @@ bool TravelersRecallCommandScript::HandleTeleportCommand(ChatHandler* handler, c
                     continue;
                 }
 
-                if (partyMember->GetSession()->IsBot())
+                if (IsClientlessSession(partyMember->GetSession()))
                 {
                     if (!partyMember->TeleportTo(mapId, x, y, z, o))
                     {
