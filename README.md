@@ -4,34 +4,26 @@ Progressive fast-travel system for AzerothCore.
 
 [![GitHub Sponsors](https://img.shields.io/badge/GitHub%20Sponsors-support-ff69b4?logo=github)](https://github.com/sponsors/ThiagoSBarreto)
 [![Buy Me a Coffee](https://img.shields.io/badge/Buy%20me%20a%20coffee-FFDD00?logo=buymeacoffee&logoColor=black&style=flat)](https://buymeacoffee.com/thiagosbarreto)
+![World of Warcraft Client](https://img.shields.io/badge/World%20of%20Warcraft%20Client-3.3.5a-blue)
 
 ---
 
-## For AzerothCore Playerbots
+## October 10, 2026 — Version 1.0.0 Released
 
-This module was originally created for the **AzerothCore Playerbots** branch.
+After a long development cycle, the official version 1.0.0 is now available.
 
-It may or may not work with standard AzerothCore ("Vanilla").
+Following several refactors, new features, and command additions, the module is finally ready for release.
 
-If you are using the standard AzerothCore branch, use the dedicated version instead:
+Check the changelog at the bottom for more details.
 
-[**Mod Traveler's Recall - Vanilla**](https://github.com/NecroHome/mod-travelers-recall/tree/main-vanilla)
-
----
-
-## 13/09/2026 UPDATE
-
-**Important:** If you update the module to this version, make sure to update the client addon as well.
-
+### Don't forget to update the Addon aswell.
 ---
 
 ## Description
 
 Traveler's Recall is a progressive teleport system for AzerothCore.
 
-Players unlock teleport locations by discovering cities and important places throughout the world. Once a location has been unlocked, it becomes available through the Traveler's Recall client addon.
-
-The module handles teleport logic, unlock progression, cooldowns, faction restrictions, and player-state validation.
+Players unlock travel locations by discovering cities and important places across the world. Once a destination is unlocked, it becomes available through the Traveler's Recall client addon.
 
 ---
 
@@ -43,16 +35,18 @@ The module handles teleport logic, unlock progression, cooldowns, faction restri
 * Faction restrictions
 * Player state protections
 * Custom unlockable locations
-* Bot party teleport support
 * Level requirement support
+* Initial unlocked teleports
+* Teleport to a Friend
+* GM Commands
+* Optional party bot teleport support (enable `TravelersRecall.TeleportPartyBots` in the configuration)
+* Optional Headless-client teleport support (enable `TravelersRecall.TeleportHeadlessClient` in the configuration)
 
 ---
 
 ## Required Addon
 
-This module requires the separate client addon:
-
-[**TravelersRecall — Client Addon**](https://github.com/NecroHome/TravelersRecall)
+This module requires the separate client addon: [**TravelersRecall — Client Addon**](https://github.com/NecroHome/TravelersRecall).
 
 The addon provides the user interface used to browse and select unlocked teleport locations.
 
@@ -83,18 +77,9 @@ git clone https://github.com/NecroHome/mod-travelers-recall.git
 
 After cloning the module, rebuild AzerothCore following the normal build process for your environment.
 
-The exact build command may vary depending on your operating system and build configuration.
-
 ---
 
 ### 1.3. Apply the Database Updates
-
-The module provides SQL updates for the following databases:
-
-```text
-data/world
-data/characters
-```
 
 Apply the SQL files to their corresponding AzerothCore databases:
 
@@ -104,8 +89,6 @@ Apply the SQL files to their corresponding AzerothCore databases:
 | `data/characters` | `acore_characters` |
 
 Depending on your AzerothCore version and database updater configuration, these updates may be applied automatically when `worldserver` starts.
-
-If automatic updates are not enabled or the updates are not applied automatically, execute the SQL files manually against the appropriate databases.
 
 ---
 
@@ -117,7 +100,7 @@ The repository includes a default configuration template:
 mod-travelers-recall.conf.dist
 ```
 
-Copy it into your AzerothCore `conf` directory and rename it to:
+Copy it into your AzerothCore `modules configuration directory` and rename it to:
 
 ```text
 mod-travelers-recall.conf
@@ -147,9 +130,7 @@ If your AzerothCore version automatically copies module configuration files duri
 
 ### 1.5. Install the Client Addon
 
-Download the addon from its separate repository:
-
-[**TravelersRecall — Client Addon**](https://github.com/NecroHome/TravelersRecall)
+Download the client addon from: [**TravelersRecall — Client Addon**](https://github.com/NecroHome/TravelersRecall).
 
 Install it into your World of Warcraft client directory.
 
@@ -162,9 +143,9 @@ World of Warcraft/
         └── TravelersRecall/
 ```
 
-The module was created for WoW version **3.5.5**.
+This module was created for WoW version **3.3.5a**.
 
-After installing the addon, restart the game client if necessary and verify that the addon is enabled on the character-selection screen.
+After installing the addon, restart the game client and verify that it is enabled on the character-selection screen.
 
 ---
 
@@ -180,11 +161,9 @@ acore_world.custom_travelers_recall_locations
 
 The `cooldown` column controls the cooldown for each individual location.
 
-* `0`
-  * Uses the global cooldown configured by the module
-  * If `TravelersRecall.UseDefaultCooldown` is set to `1` in the configuration file, all locations will have a default cooldown configured by `TravelersRecall.DefaultCooldown`.
-* Greater than `0`
-  * Uses an individual cooldown value in seconds
+* `0`: Uses the global cooldown configured by the module
+    * If `TravelersRecall.UseDefaultCooldown` is set to `1` in the configuration file, all locations will have a default cooldown configured by `TravelersRecall.DefaultCooldown`.
+* Greater than `0`: Uses an individual cooldown value in seconds
 
 ```text
 3600  = 1 hour
@@ -208,12 +187,9 @@ This configures Brill to use a two-hour cooldown.
 
 The `required_level` column controls the required level for each individual location.
 
-* `0`
-
-  * Location has no level requirement
-* Greater than `0`
-
-  * If `TravelersRecall.UseRequiredLevel` is set to `1` in the configuration file, players must be at least the specified level to unlock that location.
+* `0`: Location has no level requirement
+* Greater than `0`:
+    * If `TravelersRecall.UseRequiredLevel` is set to `1` in the configuration file, players must be at least the specified level to unlock that location.
 
 Example:
 
@@ -231,15 +207,9 @@ This configures Brill to require at least level 10 to unlock the teleport locati
 
 The `faction` column controls the faction restriction for that location.
 
-* `0`
-
-  * Location is `Neutral territory` and both factions can unlock it.
-* `1`
-
-  * Location is `Alliance territory`. Only Alliance players can unlock it.
-* `2`
-
-  * Location is `Horde territory`. Only Horde players can unlock it.
+* `0`: Location is `Neutral territory`, both factions can unlock it.
+* `1`: Location is `Alliance territory`, only Alliance players can unlock it.
+* `2`: Location is `Horde territory`, only Horde players can unlock it.
 
 Example:
 
@@ -294,7 +264,7 @@ VALUES
 );
 ```
 
-> The `area_id` must correspond to the area where the player should unlock the teleport location.
+This adds `Brill` as an unlockable location at `area_id` `159` for Horde players (`Faction: 0`), with no level requirement and no individual cooldown.
 
 ---
 
@@ -304,7 +274,7 @@ VALUES
 | ---------------- | -------------------------------------------------- |
 | `area_id`        | Area ID used to detect location discovery          |
 | `name`           | Name displayed in the addon                        |
-| `map_id`         | Destination map ID                                 |
+| `map_id`         | Destination map ID (Azeroth, Outland, etc)         |
 | `position_x/y/z` | Destination coordinates                            |
 | `orientation`    | Player facing direction after teleport             |
 | `faction`        | Faction restriction                                |
@@ -321,6 +291,7 @@ To retrieve the information required for a custom location, stand at the desired
 ```text
 .gps
 ```
+> This requires GM privileges.
 
 This provides information such as:
 
@@ -333,11 +304,67 @@ Use these values when creating a custom teleport location.
 
 ---
 
-## 3. GM Commands
+### 2.7. Initial Location Unlocks
+
+Set `TravelersRecall.StartWithAllLocationsUnlocked` in the module configuration to control whether new characters start with all locations unlocked:
+
+* `0` (default): Characters do not receive all locations automatically.
+* `1`: On their first login, characters unlock every neutral location and every location assigned to their faction.
+
+> It does not unlock locations for characters that already exist. For configured faction- and race-based starting locations, see section 2.8.
+> Setting it to `0` does not remove locations already unlocked by this method.
+
+---
+
+### 2.8. Faction- and Race-Based Initial Locations
+
+Set `TravelersRecall.InitialTeleportLocationsEnabled` to `1` to unlock configured locations when a character is created:
+
+```ini
+TravelersRecall.InitialTeleportLocationsEnabled = 1
+TravelersRecall.InitialAllianceTeleports = 1519
+TravelersRecall.InitialHordeTeleports = 1637
+
+TravelersRecall.InitialHumanTeleports = 87
+TravelersRecall.InitialDwarfTeleports = 1537
+TravelersRecall.InitialNightElfTeleports = 1657
+TravelersRecall.InitialGnomeTeleports = 1537
+TravelersRecall.InitialDraeneiTeleports = 3557
+
+TravelersRecall.InitialOrcTeleports = 362
+TravelersRecall.InitialUndeadTeleports = 1497
+TravelersRecall.InitialTaurenTeleports = 1638
+TravelersRecall.InitialTrollTeleports = 380
+TravelersRecall.InitialBloodElfTeleports = 3487
+```
+
+The faction setting applies to every character of that faction, and the race setting adds locations for that character's race. Values are area IDs from `custom_travelers_recall_locations`; configure multiple area_id as a comma-separated list, for example `1519,1537,1657`. The values above are the defaults in the distributed configuration.
+
+> This feature is separate from `TravelersRecall.StartWithAllLocationsUnlocked`: it uses the configured faction and race lists at character creation, while the other option unlocks every neutral and faction location.
+
+---
+
+## 3. Teleport to a Friend
+
+The `Teleport to a Friend` option teleports the player to the currently selected character.
+
+* If `TravelersRecall.TeleportToFriendEnabled` is set to `1` in the configuration file, players can teleport to a selected group member. A teleport option will appear in the addon list.
+
+The teleport is allowed only when all of the following conditions are met for both players:
+
+* The selected player is online.
+* The selected player is in the same group.
+* Both players are in the overworld.
+* Neither player is on a transport, in flight, dead, in a battleground, dungeon, or raid.
+* Stealth and combat restrictions follow the configuration.
+
+> The default cooldown is **24 hours (86400 seconds)** and is configured in the database.
+
+## 4. GM Commands
 
 The module provides GM commands for testing and manually unlocking locations.
 
-### 3.1. Unlock a Specific Location
+### 4.1. Unlock a Specific Location
 
 ```text
 .tr learn <area_id>
@@ -351,7 +378,7 @@ Example:
 
 This unlocks `Brill` for the selected player or yourself.
 
-### 3.2. Unlock All Locations
+### 4.2. Unlock All Locations
 
 ```text
 .tr learn all
@@ -359,7 +386,7 @@ This unlocks `Brill` for the selected player or yourself.
 
 Unlocks all available Traveler's Recall locations for the selected character.
 
-### 3.3. Remove a Specific Location
+### 4.3. Remove a Specific Location
 
 ```text
 .tr remove <area_id>
@@ -373,7 +400,7 @@ Example:
 
 This removes `Brill` from the selected player or yourself.
 
-### 3.4. Remove All Locations
+### 4.4. Remove All Locations
 
 ```text
 .tr remove all
@@ -383,16 +410,15 @@ Removes all Traveler's Recall locations from the selected player or yourself.
 
 ---
 
-## 4. Notes
+## 5. Notes
 
-* No `worldserver` restart is required after adding new locations to the database.
-* No `worldserver` restart is required when updating faction or required level, but players who already have that location unlocked will keep it.
+* No `worldserver` restart is required after adding new locations to the database or updating the faction or required level, but players who already have that location unlocked will keep it.
 * Players who are already inside an area must leave and re-enter the area before the location is detected and unlocked.
 * Icons use standard World of Warcraft client icon paths.
 
 ---
 
-## 5. Images
+## 6. Images
 
 <img width="382" height="646" alt="image" src="https://github.com/user-attachments/assets/606e409e-e99a-411f-814f-87e14b324be0" />
 <img width="388" height="647" alt="image" src="https://github.com/user-attachments/assets/07f8ad7c-f936-43d4-a463-8b1322fc0deb" />
@@ -400,7 +426,7 @@ Removes all Traveler's Recall locations from the selected player or yourself.
 
 ---
 
-## 6. FAQ
+## 7. FAQ
 
 Q: Can I contact you?
 
@@ -412,27 +438,67 @@ A: That's not a question, but feel free to open a feature request!
 
 ---
 
-## 7. Author
+## 8. Author
 
-NecroHome
+**ThiagoSBarreto**
+LesmaSamuray
 
 ---
 
-## 8. Change Log
+## 9. Credits
+
+---
+
+## 10. Update
+
+To update the module, follow these instructions:
+
+* Go to the module folder:
+   ```text
+   cd /path/to/azerothcore/modules
+   ```
+* Update the repository:
+   ```text
+   git pull
+   ```
+* Rebuild your AzerothCore installation.
+* Copy the new configuration.
+
+---
+
+## 11. Change Log
+
+### 10/10/2026 - Version 1.0.0 is live
+
+* Additional code refactoring
+* Added Outland and Northrend teleport locations
+* Added command:
+
+  * `.tr cd` (shows remaining cooldowns for all teleports)
+* Added GM commands:
+
+  * `.tr cd reset <area_id>`
+  * `.tr cd reset all`
+
+* **New feature:** Initial teleports
+  * Players can start with predefined locations unlocked
+  * Faction- and race-based initial unlocks are configurable
+  * Players can start with all neutral and faction locations unlocked on first login
+
+* **New feature:** Teleport to a Friend
+  * If enabled in the configuration file and all conditions are met (see section 3), this teleports the player to a selected group member.
 
 ### 15/09/2026
 
-* Code refactor, no new features, no need to update, just prepering the ground.
+* Code refactor; no new features; no update required beyond preparing the foundation.
 
 ### 13/09/2026
 
-* Added Required Level support
+* Added required level support
 * Added GM commands:
 
   * `.tr remove <area_id>`
   * `.tr remove all`
-
-# Game Addon must be updated
 
 ### 29/05/2026
 

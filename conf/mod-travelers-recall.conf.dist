@@ -5,16 +5,29 @@
 #
 
 #
-#    Enable Traveler's Recall
+#   Enable Traveler's Recall
 #       Description: Enable or disable the Traveler's Recall module.
 #       Default:        1 (enabled)
+#                       0 (disabled)
+#
 
 TravelersRecall.Enable = 1
 
 #
-#    Teleportation Restrictions
-#       Description: Configure the conditions under which players can use Traveler's Recall.
+#   Enable Welcome Message
+#       Description: Enable the welcome message shown on player login: "This server uses the Traveler's Recall module."
+#       Default:        1 (enabled)
+#                       0 (disabled)
+#
+
+TravelersRecall.WelcomeMessage = 1
+
+#
+#   Teleportation Restrictions
+#       Description: Configure the conditions under which players may use Traveler's Recall.
 #       Default:        0 (not allowed)
+#                       1 (allowed)
+#
 
 TravelersRecall.CanTeleport.InFlight = 0
 TravelersRecall.CanTeleport.WhileStealthed = 0
@@ -24,25 +37,121 @@ TravelersRecall.CanTeleport.InBattleground = 0
 TravelersRecall.CanTeleport.InDungeonOrRaid = 0
 
 #
-#    Cooldown Settings
+#   Cooldown Settings
 #       Description: Configure the cooldown settings for Traveler's Recall.
-#       Default:        1 (use default cooldown), 3600 seconds (1 hour )
+#       Default:        1 (use default cooldown), 3600 seconds (1 hour)
 #
 #       Note: You can specify a custom cooldown duration in seconds for
-#       each location in the Database.
+#       each location in the database.
+#
 
 TravelersRecall.UseDefaultCooldown = 1
 TravelersRecall.DefaultCooldown = 3600
 
-#    Level Restriction Settings
-        Description: Configure the level restriction to unlock the area
-        Default:        0 (any player on any level can unlock all places)
-                        1 (players need to be at least the required level to unlock)
-
-        Note: The Required level is configured in the database "acore_world.custom_travelers_recall_locations"
-        change the column "required_level"
+#
+#   Level Restriction Settings
+#       Description: Configure the level requirement needed to unlock an area.
+#       Default:        0 (any player at any level can unlock all locations)
+#                       1 (players must be at least the required level to unlock the location)
+#
+#       Note: The required level is configured in the database table
+#       "acore_world.custom_travelers_recall_locations" by changing the "required_level" column.
+#
 
 TravelersRecall.UseRequiredLevel = 0
-   
+
+#
+#   Teleport to a Friend
+#       Description: Teleports the player to a friendly target when all conditions are met.
+#       Default:        1 (enabled)
+#                       0 (disabled)
+#
+#       Note: The conditions are checked for both players.
+#
+
+TravelersRecall.TeleportToFriendEnabled = 1
+
+#
+#   Teleport Party Bots
+#       Description: Teleports Playerbots party members when the player uses Traveler's Recall.
+#       Default:        1 (enabled)
+#                       0 (disabled)
+#
+#       Player must be the party leader to teleport the bots
+#
+
+TravelersRecall.TeleportPartyBots = 1
+
+#
+#   Teleport Headless Clients
+#       Description: Teleports Headless clients in the player's party when using Traveler's Recall.
+#       Default:        0 (disabled)
+#                       1 (enabled)
+#
+#       Note: Player must be the party leader to teleport Headless clients.
+#
+
+TravelersRecall.TeleportHeadlessClient = 0
+
+#
+#   Initial Teleport Locations
+#       Description: Configure whether players start with one or more locations unlocked.
+#       Default:        0 (players do not start with any unlocked locations)
+#                       1 (players start with the configured locations for their faction and race)
+#
+
+TravelersRecall.InitialTeleportLocationsEnabled = 0
+
+#
+#   Start With All Locations Unlocked
+#       Description: Configure whether players start with all neutral locations and all locations for their faction unlocked.
+#       Default:        0 (disabled)
+#                       1 (enabled)
+#
+
+TravelersRecall.StartWithAllLocationsUnlocked = 0
+
+#
+#   Initial Locations
+#       Description: Configure the locations that Alliance and Horde players start unlocked with.
+#                    Multiple locations can be used; separate them with commas, for example: 123,456,789
+#       Defaults:
+#        - Alliance:    1519 (Stormwind)
+#        - Horde:       1637 (Orgrimmar)
+#
+
+TravelersRecall.InitialAllianceTeleports = 1519
+TravelersRecall.InitialHordeTeleports = 1637
+
+#
+#   Initial Race Locations
+#       Description: Configure the locations that players of each race start unlocked with.
+#       Default Alliance races:
+#        - Human:       87 (Goldshire)
+#        - Dwarf:       1537 (Ironforge)
+#        - NightElf:    1657 (Darnassus)
+#        - Gnome:       1537 (Ironforge)
+#        - Draenei:     3557 (The Exodar)
+#
+#       Default Horde races:
+#        - Orc:         362 (Razor Hill)
+#        - Undead:      1497 (Undercity)
+#        - Tauren:      1638 (Thunder Bluff)
+#        - Troll:       380 (Crossroads)
+#        - BloodElf:    3487 (Silvermoon)
+#
+
+TravelersRecall.InitialHumanTeleports = 87
+TravelersRecall.InitialDwarfTeleports = 1537
+TravelersRecall.InitialNightElfTeleports = 1657
+TravelersRecall.InitialGnomeTeleports = 1537
+TravelersRecall.InitialDraeneiTeleports = 3557
+
+TravelersRecall.InitialOrcTeleports = 362
+TravelersRecall.InitialUndeadTeleports = 1497
+TravelersRecall.InitialTaurenTeleports = 1638
+TravelersRecall.InitialTrollTeleports = 380
+TravelersRecall.InitialBloodElfTeleports = 3487
+
 #
 ###################################################################################################
