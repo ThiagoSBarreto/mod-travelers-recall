@@ -264,7 +264,7 @@ VALUES
 );
 ```
 
-This adds `Brill` as an unlockable location at `area_id` `159` for Horde players (`Faction: 0`), with no level requirement and no individual cooldown.
+This adds `Brill` as an unlockable location at `area_id` `159` for Horde players (`Faction: 2`), with no level requirement and no individual cooldown.
 
 ---
 
