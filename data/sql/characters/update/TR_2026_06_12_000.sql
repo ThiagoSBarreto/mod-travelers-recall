@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS `custom_travelers_recall_unlocks` (
 SET @exists = (
     SELECT COUNT(*)
     FROM information_schema.statistics
-    WHERE table_schema = 'acore_characters'
+    WHERE table_schema = DATABASE()
       AND table_name = 'custom_travelers_recall_unlocks'
       AND index_name = 'uq_guid_location'
 );
