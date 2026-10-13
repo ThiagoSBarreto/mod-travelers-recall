@@ -202,9 +202,10 @@ bool TravelersRecallCommandScript::SendListForPlayer(Player *player)
 
         Field *locationFields = location->Fetch();
 
-        uint32 areaId = locationFields[0].Get<uint32>();
+        // Signed: "Teleport to Friend" stores -1 here, which Get<uint32>() cannot read.
+        int32 areaId = locationFields[0].Get<int32>();
         std::string locationName = locationFields[1].Get<std::string>();
-        uint32 mapId = locationFields[2].Get<uint32>();
+        int32 mapId = locationFields[2].Get<int32>();
         std::string icon = locationFields[3].Get<std::string>();
 
         if (areaId == -1 && mapId == -1 && canTeleportToFriend == false)

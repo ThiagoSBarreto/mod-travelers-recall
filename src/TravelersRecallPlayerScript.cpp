@@ -79,8 +79,9 @@ namespace TravelersRecall
         Field *locationFields = locationResult->Fetch();
         uint32 locationId = locationFields[0].Get<uint32>();
 
+        // IGNORE: also called on every login, when the row usually exists already.
         CharacterDatabase.Execute(
-            "INSERT INTO custom_travelers_recall_unlocks (guid, location_id) VALUES ({}, {})",
+            "INSERT IGNORE INTO custom_travelers_recall_unlocks (guid, location_id) VALUES ({}, {})",
             player->GetGUID().GetCounter(),
             locationId);
     }
@@ -213,6 +214,10 @@ void TravelersRecallPlayerScript::OnPlayerCreate(Player *player)
 
 void TravelersRecallPlayerScript::OnPlayerLogin(Player *player)
 {
+    // Characters created before "Teleport to Friend" existed get it here
+    // (formerly a cross-database query in TR_2026_10_10_002.sql).
+    TravelersRecall::AddTeleportToFriend(player);
+
     if (!sConfigMgr->GetOption<bool>("TravelersRecall.WelcomeMessage", false))
     {
         return;
