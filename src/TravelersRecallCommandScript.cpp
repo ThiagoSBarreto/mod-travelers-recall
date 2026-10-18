@@ -1,36 +1,6 @@
 #include "TravelersRecallCommandScript.h"
+#include "TravelersRecallPlayerScript.h"
 #include "TravelersRecallService.h"
-
-namespace
-{
-    template <typename Session>
-    bool IsBotSessionImpl(Session const *session)
-    {
-        if constexpr (requires { session->IsBot(); })
-            return session->IsBot();
-        else
-            return false;
-    }
-
-    bool IsBotSession(WorldSession const *session)
-    {
-        return session && IsBotSessionImpl(session);
-    }
-
-    template <typename Session>
-    bool IsHeadlessClientSessionImpl(Session const *session)
-    {
-        if constexpr (requires { session->IsHeadlessClient(); })
-            return session->IsHeadlessClient();
-        else
-            return false;
-    }
-
-    bool IsHeadlessClientSession(WorldSession const *session)
-    {
-        return session && IsHeadlessClientSessionImpl(session);
-    }
-}
 
 TravelersRecallCommandScript::TravelersRecallCommandScript()
     : CommandScript("TravelersRecallCommandScript")
@@ -333,7 +303,7 @@ bool TravelersRecallCommandScript::HandleTeleportCommand(ChatHandler *handler, c
                         continue;
                     }
 
-                    bool shouldTeleport = (teleportPartyBots && IsBotSession(session)) || (teleportHeadlessClients && IsHeadlessClientSession(session));
+                    bool shouldTeleport = (teleportPartyBots && TravelersRecallPlayerScript::IsBotSession(session)) || (teleportHeadlessClients && TravelersRecallPlayerScript::IsHeadlessClientSession(session));
 
                     if (shouldTeleport)
                     {
@@ -407,6 +377,8 @@ bool TravelersRecallCommandScript::HandleLearnCommand(ChatHandler *handler, char
     std::string locationName = locFields[1].Get<std::string>();
     std::string icon = locFields[2].Get<std::string>();
 
+    TravelersRecallPlayerScript::CacheUnlock(target, locationId);
+
     CharacterDatabase.Execute(
         "INSERT IGNORE INTO custom_travelers_recall_unlocks (guid, location_id, unlocked_at, cooldown_end) VALUES ({}, {}, NOW(), 0)",
         target->GetGUID().GetCounter(),
@@ -449,6 +421,8 @@ bool TravelersRecallCommandScript::HandleLearnAllCommand(ChatHandler *handler, c
         uint32 locationId = fields[0].Get<uint32>();
         std::string locationName = fields[1].Get<std::string>();
         std::string icon = fields[2].Get<std::string>();
+
+        TravelersRecallPlayerScript::CacheUnlock(target, locationId);
 
         CharacterDatabase.Execute(
             "INSERT IGNORE INTO custom_travelers_recall_unlocks (guid, location_id, unlocked_at, cooldown_end) VALUES ({}, {}, NOW(), 0)",
@@ -502,6 +476,8 @@ bool TravelersRecallCommandScript::HandleRemoveCommand(ChatHandler *handler, cha
 
     uint32 locationId = result->Fetch()[0].Get<uint32>();
 
+    TravelersRecallPlayerScript::CacheRemove(target, locationId);
+
     CharacterDatabase.Execute(
         "DELETE FROM custom_travelers_recall_unlocks WHERE guid = {} AND location_id = {}",
         target->GetGUID().GetCounter(),
@@ -542,6 +518,8 @@ bool TravelersRecallCommandScript::HandleRemoveAllCommand(ChatHandler *handler, 
         Field *fields = result->Fetch();
         ids.push_back(fields[0].Get<uint32>());
     } while (result->NextRow());
+
+    TravelersRecallPlayerScript::CacheRemoveAll(target);
 
     CharacterDatabase.Execute(
         "DELETE FROM custom_travelers_recall_unlocks WHERE guid = {}",

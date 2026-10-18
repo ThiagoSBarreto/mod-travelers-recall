@@ -8,13 +8,22 @@ Progressive fast-travel system for AzerothCore.
 
 ---
 
-## October 10, 2026 — Version 1.0.0 Released
+## October 18, 2026 - Version 1.1.0 Released
 
-After a long development cycle, the official version 1.0.0 is now available.
+Fixed SQL queries that used hardcoded database names, thanks to [alexanderschwarzkopf8](https://github.com/alexanderschwarzkopf8)
 
-Following several refactors, new features, and command additions, the module is finally ready for release.
+Location data is now cached in memory to reduce database queries.
+> Restart the worldserver after adding, modifying, or removing locations for the changes to take effect.
 
-Check the changelog at the bottom for more details.
+Bots can no longer unlock teleport locations.
+> Headless clients still do
+
+> [!NOTE]
+> No new features have been added.
+> This update focuses on performance improvements and adds new locations in Outland and Northrend.
+> More locations still need to be added.
+
+As always, thank you so much for using the module! If you encounter any issues, please open an issue.
 
 ### Don't forget to update the Addon aswell.
 ---
@@ -75,7 +84,7 @@ git clone https://github.com/NecroHome/mod-travelers-recall.git
 
 ### 1.2. Rebuild AzerothCore
 
-After cloning the module, rebuild AzerothCore following the normal build process for your environment.
+> After cloning the module, rebuild AzerothCore.
 
 ---
 
@@ -88,7 +97,7 @@ Apply the SQL files to their corresponding AzerothCore databases:
 | `data/world`      | `acore_world`      |
 | `data/characters` | `acore_characters` |
 
-Depending on your AzerothCore version and database updater configuration, these updates may be applied automatically when `worldserver` starts.
+> Depending on your AzerothCore version and database updater configuration, these updates may be applied automatically when `worldserver` starts.
 
 ---
 
@@ -124,7 +133,7 @@ azerothcore/
                 └── mod-travelers-recall.conf
 ```
 
-If your AzerothCore version automatically copies module configuration files during the build or installation process, verify whether the file has already been placed in the `env/dist/etc/modules` directory before copying it manually.
+> If your AzerothCore version automatically copies module configuration files during the build or installation process, verify whether the file has already been placed in the `env/dist/etc/modules` directory before copying it manually.
 
 ---
 
@@ -145,7 +154,7 @@ World of Warcraft/
 
 This module was created for WoW version **3.3.5a**.
 
-After installing the addon, restart the game client and verify that it is enabled on the character-selection screen.
+> After installing the addon, restart the game client and verify that it is enabled on the character-selection screen.
 
 ---
 
@@ -179,7 +188,7 @@ SET cooldown = 7200
 WHERE name = 'Brill';
 ```
 
-This configures Brill to use a two-hour cooldown.
+> This configures Brill to use a two-hour cooldown.
 
 ---
 
@@ -199,7 +208,7 @@ SET required_level = 10
 WHERE area_id = 159;
 ```
 
-This configures Brill to require at least level 10 to unlock the teleport location.
+> This configures Brill to require at least level 10 to unlock the teleport location.
 
 ---
 
@@ -219,7 +228,7 @@ SET faction = 0
 WHERE area_id = 159;
 ```
 
-This configures Brill as a `Neutral territory`, allowing both Alliance and Horde players to unlock it.
+> This configures Brill as a `Neutral territory`, allowing both Alliance and Horde players to unlock it.
 
 ---
 
@@ -264,7 +273,7 @@ VALUES
 );
 ```
 
-This adds `Brill` as an unlockable location at `area_id` `159` for Horde players (`Faction: 2`), with no level requirement and no individual cooldown.
+> This adds `Brill` as an unlockable location at `area_id` `159` for Horde players (`Faction: 2`), with no level requirement and no individual cooldown.
 
 ---
 
@@ -300,7 +309,7 @@ This provides information such as:
 * Coordinates
 * Orientation
 
-Use these values when creating a custom teleport location.
+> Use these values when creating a custom teleport location.
 
 ---
 
@@ -412,8 +421,6 @@ Removes all Traveler's Recall locations from the selected player or yourself.
 
 ## 5. Notes
 
-* No `worldserver` restart is required after adding new locations to the database or updating the faction or required level, but players who already have that location unlocked will keep it.
-* Players who are already inside an area must leave and re-enter the area before the location is detected and unlocked.
 * Icons use standard World of Warcraft client icon paths.
 
 ---
@@ -468,25 +475,31 @@ To update the module, follow these instructions:
 
 ## 11. Change Log
 
+### 18/10/2026 - Version 1.1.0
+
+* Fixed SQL hard coded database names, thanks to [alexanderschwarzkopf8](https://github.com/alexanderschwarzkopf8)
+* Now the modules uses cache, worldserver restart is required after database changes
+* Fixed some Northrend locations using wrong map_id
+* Bots no longer unlock teleport locations
+    * Headless clients still do
+
 ### 10/10/2026 - Version 1.0.0 is live
 
 * Additional code refactoring
 * Added Outland and Northrend teleport locations
 * Added command:
-
-  * `.tr cd` (shows remaining cooldowns for all teleports)
+    * `.tr cd` (shows remaining cooldowns for all teleports)
 * Added GM commands:
-
-  * `.tr cd reset <area_id>`
-  * `.tr cd reset all`
+    * `.tr cd reset <area_id>`
+    * `.tr cd reset all`
 
 * **New feature:** Initial teleports
-  * Players can start with predefined locations unlocked
-  * Faction- and race-based initial unlocks are configurable
-  * Players can start with all neutral and faction locations unlocked on first login
+    * Players can start with predefined locations unlocked
+    * Faction- and race-based initial unlocks are configurable
+    * Players can start with all neutral and faction locations unlocked on first login
 
 * **New feature:** Teleport to a Friend
-  * If enabled in the configuration file and all conditions are met (see section 3), this teleports the player to a selected group member.
+    * If enabled in the configuration file and all conditions are met (see section 3), this teleports the player to a selected group member.
 
 ### 15/09/2026
 
@@ -497,16 +510,16 @@ To update the module, follow these instructions:
 * Added required level support
 * Added GM commands:
 
-  * `.tr remove <area_id>`
-  * `.tr remove all`
+    * `.tr remove <area_id>`
+    * `.tr remove all`
 
 ### 29/05/2026
 
 * Added new locations.
 * Added GM commands:
 
-  * `.tr learn <area_id>`
-  * `.tr learn all`
+    * `.tr learn <area_id>`
+    * `.tr learn all`
 
 ### 20/05/2026
 
