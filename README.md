@@ -8,24 +8,22 @@ Progressive fast-travel system for AzerothCore.
 
 ---
 
-## October 18, 2026 - Version 1.1.0 Released
+## October 27, 2026 - Bugfix 1.1.1 Released
 
-Fixed SQL queries that used hardcoded database names, thanks to [alexanderschwarzkopf8](https://github.com/alexanderschwarzkopf8)
+A minor (but with major drawback) bugfix.
 
-Location data is now cached in memory to reduce database queries.
-> Restart the worldserver after adding, modifying, or removing locations for the changes to take effect.
-
-Bots can no longer unlock teleport locations.
-> Headless clients still do
+Fixed bots not teleporting when you're the party leader.
+> Now when enabled on the configuration file AND you're on the Playerbots branch of AzerothCore
+> bots will teleport with you.
 
 > [!NOTE]
-> No new features have been added.
-> This update focuses on performance improvements and adds new locations in Outland and Northrend.
-> More locations still need to be added.
+> If you're not using the Playerbots branch, you'll just teleport.
+
+Fixed places discovery, thanks to [EvilTactician](https://github.com/EvilTactician)
+> Was added a sub-zone detection that when wrong, now it's fixed.
 
 As always, thank you so much for using the module! If you encounter any issues, please open an issue.
 
-### Don't forget to update the Addon aswell.
 ---
 
 ## Description
@@ -475,6 +473,11 @@ To update the module, follow these instructions:
 
 ## 11. Change Log
 
+### 27/10/2026 - Version 1.1.1
+
+* Fixed bots not teleporting with the party leader
+* Fixed sub-zones discovery, thanks to [EvilTactician](https://github.com/EvilTactician)
+
 ### 18/10/2026 - Version 1.1.0
 
 * Fixed SQL hard coded database names, thanks to [alexanderschwarzkopf8](https://github.com/alexanderschwarzkopf8)
@@ -501,28 +504,4 @@ To update the module, follow these instructions:
 * **New feature:** Teleport to a Friend
     * If enabled in the configuration file and all conditions are met (see section 3), this teleports the player to a selected group member.
 
-### 15/09/2026
-
-* Code refactor; no new features; no update required beyond preparing the foundation.
-
-### 13/09/2026
-
-* Added required level support
-* Added GM commands:
-
-    * `.tr remove <area_id>`
-    * `.tr remove all`
-
-### 29/05/2026
-
-* Added new locations.
-* Added GM commands:
-
-    * `.tr learn <area_id>`
-    * `.tr learn all`
-
-### 20/05/2026
-
-* Added bot party teleport support.
-* Fixed location discovery while dead.
-* Added Brill, Razor Hill, and Camp Taurajo.
+---

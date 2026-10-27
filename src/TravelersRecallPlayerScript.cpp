@@ -261,11 +261,12 @@ TravelersRecallPlayerScript::TravelersRecallPlayerScript()
 
 void TravelersRecallPlayerScript::OnPlayerUpdateArea(Player *player, uint32 oldArea, uint32 newArea)
 {
-    if (IsBotSession(player->GetSession()))
+    #ifdef MOD_PLAYERBOTS
+    if (player->GetSession()->IsBot())
     {
         return;
     }
-
+    #endif
     if (!sConfigMgr->GetOption<bool>("TravelersRecall.Enable", false))
     {
         return;
@@ -296,14 +297,11 @@ void TravelersRecallPlayerScript::OnPlayerUpdateArea(Player *player, uint32 oldA
         }
     };
 
-    if (zoneId != 0)
-    {
-        addLocations(zoneId);
-    }
-    else
-    {
-        addLocations(newArea);
-    }
+    addLocations(newArea);
+	if (zoneId != 0 && zoneId != newArea)
+	{
+		addLocations(zoneId);
+	}
 
     if (matchingLocations.empty())
     {
@@ -474,24 +472,6 @@ void TravelersRecallPlayerScript::CacheRemoveAll(Player *player)
 
     uint32 guid = player->GetGUID().GetCounter();
     UnlocksByCharacter[guid].clear();
-}
-
-template <typename Session>
-bool IsBotSessionImpl(Session const *session)
-{
-    if constexpr (requires { session->IsBot(); })
-    {
-        return session->IsBot();
-    }
-    else
-    {
-        return false;
-    }
-}
-
-bool TravelersRecallPlayerScript::IsBotSession(WorldSession const *session)
-{
-    return session && IsBotSessionImpl(session);
 }
 
 template <typename Session>

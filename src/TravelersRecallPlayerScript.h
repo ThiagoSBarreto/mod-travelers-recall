@@ -20,6 +20,5 @@ public:
     static void CacheUnlock(Player* player, uint32 locationId);
     static void CacheRemove(Player* player, uint32 locationId);
     static void CacheRemoveAll(Player* player);
-    static bool IsBotSession(WorldSession const *session);
     static bool IsHeadlessClientSession(WorldSession const *session);
 };
