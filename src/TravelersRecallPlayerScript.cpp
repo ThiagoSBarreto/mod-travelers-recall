@@ -261,12 +261,10 @@ TravelersRecallPlayerScript::TravelersRecallPlayerScript()
 
 void TravelersRecallPlayerScript::OnPlayerUpdateArea(Player *player, uint32 oldArea, uint32 newArea)
 {
-    #ifdef MOD_PLAYERBOTS
-    if (player->GetSession()->IsBot())
+    if (IsBotSession(player->GetSession()))
     {
         return;
     }
-    #endif
     if (!sConfigMgr->GetOption<bool>("TravelersRecall.Enable", false))
     {
         return;
@@ -490,4 +488,24 @@ bool IsHeadlessClientSessionImpl(Session const *session)
 bool TravelersRecallPlayerScript::IsHeadlessClientSession(WorldSession const *session)
 {
     return session && IsHeadlessClientSessionImpl(session);
+}
+
+template <typename Session>
+bool IsBotSessionImpl(Session *session)
+{
+    // Not every core provides WorldSession::IsBot() (it comes from the Playerbot core branch).
+    // Detect it at compile time instead of assuming it exists when mod-playerbots is present.
+    if constexpr (requires { session->IsBot(); })
+    {
+        return session->IsBot();
+    }
+    else
+    {
+        return false;
+    }
+}
+
+bool TravelersRecallPlayerScript::IsBotSession(WorldSession *session)
+{
+    return session && IsBotSessionImpl(session);
 }
