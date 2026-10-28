@@ -8,6 +8,9 @@ Progressive fast-travel system for AzerothCore.
 
 ---
 
+> [!WARN]
+> This branch is a hotfix, if the main branch is not working for you
+
 ## October 27, 2026 - Bugfix 1.1.1 Released
 
 A minor (but with major drawback) bugfix.
