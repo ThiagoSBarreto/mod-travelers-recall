@@ -303,16 +303,9 @@ bool TravelersRecallCommandScript::HandleTeleportCommand(ChatHandler *handler, c
                         continue;
                     }
 
-                    bool isBot = false;
-                    #ifdef MOD_PLAYERBOTS
-                    if (session->IsBot())
-                    {
-                        isBot = true;
-                    }
-                    #endif
                     bool isHeadless = TravelersRecallPlayerScript::IsHeadlessClientSession(session);
 
-                    if ((isBot && teleportPartyBots) || (isHeadless && teleportHeadlessClients))
+                    if ((isHeadless && teleportHeadlessClients))
                     {
                         if (!partyMember->TeleportTo(mapId, x, y, z, o))
                         {
