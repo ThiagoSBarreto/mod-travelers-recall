@@ -2,6 +2,10 @@
 #include "TravelersRecallPlayerScript.h"
 #include "TravelersRecallService.h"
 
+#ifdef MOD_PLAYERBOTS
+#include "PlayerbotMgr.h"
+#endif
+
 TravelersRecallCommandScript::TravelersRecallCommandScript()
     : CommandScript("TravelersRecallCommandScript")
 {
@@ -303,7 +307,13 @@ bool TravelersRecallCommandScript::HandleTeleportCommand(ChatHandler *handler, c
                         continue;
                     }
 
-                    bool isBot = TravelersRecallPlayerScript::IsBotSession(session);
+                    bool isBot = false;
+                    #ifdef MOD_PLAYERBOTS
+                    if (PlayerbotsMgr::instance().GetPlayerbotAI(partyMember))
+                    {
+                        isBot = true;
+                    }
+                    #endif
                     bool isHeadless = TravelersRecallPlayerScript::IsHeadlessClientSession(session);
 
                     if ((isBot && teleportPartyBots) || (isHeadless && teleportHeadlessClients))

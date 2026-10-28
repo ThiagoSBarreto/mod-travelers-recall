@@ -94,7 +94,7 @@ namespace TravelersRecall
         return true;
     }
 
-    std::string CanPlayerTeleportToFried(Player* player, Player* targetPlayer, ChatHandler* handler, uint32 locationId)
+    std::string CanPlayerTeleportToFried(Player* player, Player* targetPlayer, ChatHandler* /*handler*/, uint32 /*locationId*/)
     {
         if (player->GetTransport() || targetPlayer->GetTransport())
         {
