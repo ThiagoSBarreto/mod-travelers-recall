@@ -49,6 +49,19 @@ TravelersRecall.UseDefaultCooldown = 1
 TravelersRecall.DefaultCooldown = 3600
 
 #
+#   Friend Cooldown
+#       Description: Cooldown in seconds for Teleport to a Friend. The default cooldown above is
+#                    only used when a location has no cooldown in the database, and the Teleport
+#                    to a Friend row in the database has its own cooldown (24 hours). Set this to
+#                    override that value for Teleport to a Friend only.
+#       Default:        -1 (use the cooldown of the database row)
+#                       0  (no cooldown)
+#                       Any other value is the cooldown in seconds, e.g. 3600 (1 hour)
+#
+
+TravelersRecall.FriendCooldown = -1
+
+#
 #   Level Restriction Settings
 #       Description: Configure the level requirement needed to unlock an area.
 #       Default:        0 (any player at any level can unlock all locations)

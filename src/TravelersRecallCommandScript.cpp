@@ -98,6 +98,13 @@ bool TravelersRecallCommandScript::HandleTeleportToFriend(Player *player, ChatHa
         cooldown = sConfigMgr->GetOption<uint32>("TravelersRecall.DefaultCooldown", 0);
     }
 
+    // Optional cooldown for Teleport to Friend only. -1 (default) keeps the cooldown of the database row.
+    int32 friendCooldown = sConfigMgr->GetOption<int32>("TravelersRecall.FriendCooldown", -1);
+    if (friendCooldown >= 0)
+    {
+        cooldown = static_cast<uint32>(friendCooldown);
+    }
+
     if (cooldown > 0)
     {
         uint32 remaining = TravelersRecall::GetCooldownRemaining(player, locationId);
