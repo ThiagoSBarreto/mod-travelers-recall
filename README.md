@@ -6,15 +6,12 @@ Progressive fast-travel system for AzerothCore.
 
 ---
 
-## November 13, 2026 - Version 1.3.0 Released
+## November 14, 2026 - Version 1.3.1 Released
 
-Teleport to a Friend now follows the same teleport restrictions as the other locations.
-> With `TravelersRecall.CanTeleport.InDungeonOrRaid = 1`, players can teleport to a group member from or into a dungeon or raid. Entering the dungeon or raid still requires the player to meet its normal entry requirements (level, attunement, lockouts, raid group).
-
-New locations: Tarren Mill, Sun Rock Retreat and Stonetalon Peak.
+New locations: Shadowprey Village and Nijel's Point in Desolace.
 
 > [!NOTE]
-> Apply the database updates and rebuild AzerothCore after updating. Update the [client addon](https://github.com/EvilTactician/TravelersRecall) to version 1.1.2 so the new locations are grouped under their region.
+> Apply the database updates after updating. Update the [client addon](https://github.com/EvilTactician/TravelersRecall) to version 1.1.3 so the new locations are grouped under their region.
 
 ---
 
@@ -498,6 +495,10 @@ To update the module, follow these instructions:
 ---
 
 ## 10. Change Log
+
+### 14/11/2026 - Version 1.3.1
+
+* Added Shadowprey Village and Nijel's Point
 
 ### 13/11/2026 - Version 1.3.0
 
