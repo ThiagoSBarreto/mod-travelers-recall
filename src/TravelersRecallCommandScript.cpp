@@ -405,7 +405,7 @@ bool TravelersRecallCommandScript::HandleLearnCommand(ChatHandler *handler, char
     return true;
 }
 
-bool TravelersRecallCommandScript::HandleLearnAllCommand(ChatHandler *handler, char const *args)
+bool TravelersRecallCommandScript::HandleLearnAllCommand(ChatHandler *handler, char const * /*args*/)
 {
     Player *target = handler->getSelectedPlayerOrSelf();
 
@@ -505,7 +505,7 @@ bool TravelersRecallCommandScript::HandleRemoveCommand(ChatHandler *handler, cha
     return true;
 }
 
-bool TravelersRecallCommandScript::HandleRemoveAllCommand(ChatHandler *handler, char const *args)
+bool TravelersRecallCommandScript::HandleRemoveAllCommand(ChatHandler *handler, char const * /*args*/)
 {
     Player *target = handler->getSelectedPlayerOrSelf();
 
@@ -596,7 +596,7 @@ bool TravelersRecallCommandScript::HandleCooldownCommand(ChatHandler *handler, c
     return true;
 }
 
-bool TravelersRecallCommandScript::HandleCooldownListCommand(ChatHandler *handler, char const *args)
+bool TravelersRecallCommandScript::HandleCooldownListCommand(ChatHandler *handler, char const * /*args*/)
 {
     Player *player = handler->getSelectedPlayerOrSelf();
 
@@ -697,7 +697,7 @@ bool TravelersRecallCommandScript::HandleCooldownResetCommand(ChatHandler *handl
     return true;
 }
 
-bool TravelersRecallCommandScript::HandleCooldownResetAllCommand(ChatHandler *handler, char const *args)
+bool TravelersRecallCommandScript::HandleCooldownResetAllCommand(ChatHandler *handler, char const * /*args*/)
 {
     Player *player = handler->getSelectedPlayerOrSelf();
 
