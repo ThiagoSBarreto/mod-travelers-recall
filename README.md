@@ -473,6 +473,13 @@ To update the module, follow these instructions:
 
 ## 11. Change Log
 
+### 14/11/2026 - Quest hubs and sorted list
+
+* Added 54 quest hubs (incl. all of Horde Northrend, which had none)
+* Fixed Warsong Hold (wrong area_id and Outland coordinates), Wildhammer Stronghold area_id, the "Tharllmar" typo and a few icons
+* The server now sends `TR_META:<id>:<continent>:<zone>` so the addon can group the list by continent and sort it by zone and name
+    * Requires the updated client addon to take effect; older addons ignore the message
+
 ### 27/10/2026 - Version 1.1.1
 
 * Fixed bots not teleporting with the party leader

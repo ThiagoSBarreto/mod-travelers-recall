@@ -187,6 +187,9 @@ bool TravelersRecallCommandScript::SendListForPlayer(Player *player)
             continue;
         }
 
+        // Metadata first, so the addon can place the entry when TR_LIST arrives.
+        TravelersRecall::SendLocationMeta(player, locationId, areaId);
+
         std::string message = Acore::StringFormat(
             "TR_LIST:{}:{}:{}",
             locationId,
@@ -397,7 +400,7 @@ bool TravelersRecallCommandScript::HandleLearnCommand(ChatHandler *handler, char
 
     handler->SendSysMessage("Traveler's Recall: location unlocked.");
 
-    TravelersRecall::SendUnlockMessage(target, locationId, locationName, icon);
+    TravelersRecall::SendUnlockMessage(target, locationId, static_cast<int32>(areaId), locationName, icon);
 
     return true;
 }
@@ -414,7 +417,7 @@ bool TravelersRecallCommandScript::HandleLearnAllCommand(ChatHandler *handler, c
     uint32 faction = target->GetTeamId() == TEAM_ALLIANCE ? 1 : 2;
 
     QueryResult result = WorldDatabase.Query(
-        "SELECT id, name, icon FROM custom_travelers_recall_locations WHERE faction IN (0, {})",
+        "SELECT id, name, icon, area_id FROM custom_travelers_recall_locations WHERE faction IN (0, {})",
         faction);
 
     if (!result)
@@ -432,6 +435,7 @@ bool TravelersRecallCommandScript::HandleLearnAllCommand(ChatHandler *handler, c
         uint32 locationId = fields[0].Get<uint32>();
         std::string locationName = fields[1].Get<std::string>();
         std::string icon = fields[2].Get<std::string>();
+        int32 areaId = fields[3].Get<int32>();
 
         TravelersRecallPlayerScript::CacheUnlock(target, locationId);
 
@@ -440,7 +444,7 @@ bool TravelersRecallCommandScript::HandleLearnAllCommand(ChatHandler *handler, c
             guid,
             locationId);
 
-        TravelersRecall::SendUnlockMessage(target, locationId, locationName, icon);
+        TravelersRecall::SendUnlockMessage(target, locationId, areaId, locationName, icon);
 
     } while (result->NextRow());
 
