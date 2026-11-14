@@ -91,6 +91,13 @@ namespace TravelersRecall
         SendAddonMessage(player, message);
     }
 
+    // TR_CD:<locationId>:<remainingSeconds>
+    // locationId 0 means "all locations" (used by .tr cd reset all), 0 seconds clears the cooldown.
+    void SendCooldownMessage(Player* player, uint32 locationId, uint32 remainingSeconds)
+    {
+        SendAddonMessage(player, Acore::StringFormat("TR_CD:{}:{}", locationId, remainingSeconds));
+    }
+
     void SendUnlockMessage(Player* player, uint32 locationId, int32 areaId, std::string const& locationName, std::string const& icon)
     {
         SendLocationMeta(player, locationId, areaId);

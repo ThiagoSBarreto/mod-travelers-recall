@@ -139,6 +139,8 @@ bool TravelersRecallCommandScript::HandleTeleportToFriend(Player *player, ChatHa
             cooldownEnd,
             player->GetGUID().GetCounter(),
             locationId);
+
+        TravelersRecall::SendCooldownMessage(player, locationId, cooldown);
     }
 
     handler->PSendSysMessage("Traveler's Recall: teleported.");
@@ -149,7 +151,7 @@ bool TravelersRecallCommandScript::HandleTeleportToFriend(Player *player, ChatHa
 bool TravelersRecallCommandScript::SendListForPlayer(Player *player)
 {
     QueryResult unlocks = CharacterDatabase.Query(
-        "SELECT location_id FROM custom_travelers_recall_unlocks WHERE guid = {}",
+        "SELECT location_id, cooldown_end FROM custom_travelers_recall_unlocks WHERE guid = {}",
         player->GetGUID().GetCounter());
 
     if (!unlocks)
@@ -158,12 +160,14 @@ bool TravelersRecallCommandScript::SendListForPlayer(Player *player)
     }
 
     bool canTeleportToFriend = sConfigMgr->GetOption<bool>("TravelersRecall.TeleportToFriendEnabled", false);
+    uint32 now = duration_cast<Seconds>(GameTime::GetSystemTime().time_since_epoch()).count();
 
     do
     {
         Field *unlockFields = unlocks->Fetch();
 
         uint32 locationId = unlockFields[0].Get<uint32>();
+        uint32 cooldownEnd = unlockFields[1].Get<uint32>();
 
         QueryResult location = WorldDatabase.Query(
             "SELECT area_id, name, map_id, icon FROM custom_travelers_recall_locations WHERE id = {}",
@@ -189,6 +193,11 @@ bool TravelersRecallCommandScript::SendListForPlayer(Player *player)
 
         // Metadata first, so the addon can place the entry when TR_LIST arrives.
         TravelersRecall::SendLocationMeta(player, locationId, areaId);
+
+        if (cooldownEnd > now)
+        {
+            TravelersRecall::SendCooldownMessage(player, locationId, cooldownEnd - now);
+        }
 
         std::string message = Acore::StringFormat(
             "TR_LIST:{}:{}:{}",
@@ -340,6 +349,8 @@ bool TravelersRecallCommandScript::HandleTeleportCommand(ChatHandler *handler, c
             cooldownEnd,
             player->GetGUID().GetCounter(),
             locationId);
+
+        TravelersRecall::SendCooldownMessage(player, locationId, cooldown);
     }
 
     handler->PSendSysMessage(
@@ -678,6 +689,8 @@ bool TravelersRecallCommandScript::HandleCooldownResetCommand(ChatHandler *handl
         player->GetGUID().GetCounter(),
         locationId);
 
+    TravelersRecall::SendCooldownMessage(player, locationId, 0);
+
     QueryResult locationName = WorldDatabase.Query(
         "SELECT name FROM custom_travelers_recall_locations WHERE id = {}",
         locationId);
@@ -709,6 +722,8 @@ bool TravelersRecallCommandScript::HandleCooldownResetAllCommand(ChatHandler *ha
     CharacterDatabase.Execute(
         "UPDATE custom_travelers_recall_unlocks SET cooldown_end = 0 WHERE guid = {}",
         player->GetGUID().GetCounter());
+
+    TravelersRecall::SendCooldownMessage(player, 0, 0);
 
     handler->PSendSysMessage(
         "Traveler's Recall: all cooldowns reset.");
