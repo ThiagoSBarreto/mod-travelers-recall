@@ -473,7 +473,9 @@ To update the module, follow these instructions:
 
 ## 11. Change Log
 
-### 14/11/2026 - Quest hubs and sorted list
+### 16/11/2026 - Version 1.2.0
+
+> Requires client addon 1.2.0 or newer: [Tntdruid/TravelersRecall](https://github.com/Tntdruid/TravelersRecall/releases)
 
 * Added 54 quest hubs (incl. all of Horde Northrend, which had none)
 * Fixed Warsong Hold (wrong area_id and Outland coordinates), Wildhammer Stronghold area_id, the "Tharllmar" typo and a few icons
