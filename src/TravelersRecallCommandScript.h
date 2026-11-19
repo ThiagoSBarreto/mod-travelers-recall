@@ -22,5 +22,6 @@ public:
     static bool HandleCooldownResetAllCommand(ChatHandler* handler, char const* args);
 
     static std::string BuildCooldownRemainingText(uint32 remainingSeconds);
-    static bool HandleTeleportToFriend(Player *player, ChatHandler *handler, uint32 locationId, uint32 cooldown);
+    static bool HandleTeleportToFriend(Player *player, ChatHandler *handler, uint32 locationId, uint32 cooldown, bool allowCast = false, ObjectGuid targetGuid = ObjectGuid::Empty);
+    static bool TeleportToLocation(Player *player, ChatHandler *handler, uint32 locationId, bool allowCast, ObjectGuid targetGuid = ObjectGuid::Empty);
 };

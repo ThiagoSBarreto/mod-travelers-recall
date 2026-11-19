@@ -1,6 +1,7 @@
 #include "TravelersRecallCommandScript.h"
 #include "TravelersRecallPlayerScript.h"
 #include "TravelersRecallService.h"
+#include "TravelersRecallSpellScript.h"
 
 #ifdef MOD_PLAYERBOTS
 #include "PlayerbotMgr.h"
@@ -69,9 +70,13 @@ std::string TravelersRecallCommandScript::BuildCooldownRemainingText(uint32 rema
     return message;
 }
 
-bool TravelersRecallCommandScript::HandleTeleportToFriend(Player *player, ChatHandler *handler, uint32 locationId, uint32 cooldown)
+bool TravelersRecallCommandScript::HandleTeleportToFriend(Player *player, ChatHandler *handler, uint32 locationId, uint32 cooldown, bool allowCast, ObjectGuid targetGuid)
 {
-    ObjectGuid targetGuid = player->GetTarget();
+    // A finished cast passes the target chosen when the cast started.
+    if (!targetGuid)
+    {
+        targetGuid = player->GetTarget();
+    }
 
     if (!targetGuid)
     {
@@ -98,6 +103,13 @@ bool TravelersRecallCommandScript::HandleTeleportToFriend(Player *player, ChatHa
         cooldown = sConfigMgr->GetOption<uint32>("TravelersRecall.DefaultCooldown", 0);
     }
 
+    // Optional cooldown for Teleport to Friend only. -1 (default) keeps the cooldown of the database row.
+    int32 friendCooldown = sConfigMgr->GetOption<int32>("TravelersRecall.FriendCooldown", -1);
+    if (friendCooldown >= 0)
+    {
+        cooldown = static_cast<uint32>(friendCooldown);
+    }
+
     if (cooldown > 0)
     {
         uint32 remaining = TravelersRecall::GetCooldownRemaining(player, locationId);
@@ -121,14 +133,25 @@ bool TravelersRecallCommandScript::HandleTeleportToFriend(Player *player, ChatHa
         return true;
     }
 
-    player->TeleportTo(
+    if (allowCast && TravelersRecall::StartRecallCast(player, handler, locationId, targetGuid))
+    {
+        return true;
+    }
+
+    // No TELE_TO_GM_MODE: the core checks whether the player may enter the target's map
+    // (level, attunement, lockouts, raid group), the same as for the other teleports.
+    if (!player->TeleportTo(
         selectedPlayer->GetMapId(),
         selectedPlayer->GetPositionX(),
         selectedPlayer->GetPositionY(),
         selectedPlayer->GetPositionZ() + 0.25f,
         player->GetOrientation(),
-        TELE_TO_GM_MODE,
-        selectedPlayer);
+        0,
+        selectedPlayer))
+    {
+        handler->SendSysMessage("Traveler's Recall: teleportation failed.");
+        return true;
+    }
 
     if (cooldown > 0)
     {
@@ -211,6 +234,11 @@ bool TravelersRecallCommandScript::HandleTeleportCommand(ChatHandler *handler, c
     Player *player = handler->GetPlayer();
     uint32 locationId = atoi(args);
 
+    return TeleportToLocation(player, handler, locationId, true);
+}
+
+bool TravelersRecallCommandScript::TeleportToLocation(Player *player, ChatHandler *handler, uint32 locationId, bool allowCast, ObjectGuid targetGuid)
+{
     if (!TravelersRecall::CanPlayerTeleport(player, handler, locationId))
     {
         return true;
@@ -235,7 +263,7 @@ bool TravelersRecallCommandScript::HandleTeleportCommand(ChatHandler *handler, c
 
     if (areaId == -1 && mapId == -1 && canTeleportToFriend == true)
     {
-        return HandleTeleportToFriend(player, handler, locationId, cooldown);
+        return HandleTeleportToFriend(player, handler, locationId, cooldown, allowCast, targetGuid);
     }
 
     float x = fields[2].Get<float>();
@@ -264,6 +292,14 @@ bool TravelersRecallCommandScript::HandleTeleportCommand(ChatHandler *handler, c
 
             return true;
         }
+    }
+
+    // With a cast time the teleport happens when the cast finishes, which calls this
+    // function again with allowCast = false. A cancelled cast teleports nothing and
+    // starts no cooldown.
+    if (allowCast && TravelersRecall::StartRecallCast(player, handler, locationId))
+    {
+        return true;
     }
 
     if (!player->TeleportTo(mapId, x, y, z, o))

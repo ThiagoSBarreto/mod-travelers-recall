@@ -1,4 +1,5 @@
 #include "TravelersRecallPlayerScript.h"
+#include "TravelersRecallSpellScript.h"
 
 #include "Chat.h"
 #include "Config.h"
@@ -409,6 +410,7 @@ void TravelersRecallPlayerScript::OnPlayerLogout(Player *player)
     uint32 guid = player->GetGUID().GetCounter();
     UnlocksByCharacter.erase(guid);
     LoadedCharacterUnlocks.erase(guid);
+    TravelersRecall::ClearRecallCast(player);
 }
 
 void TravelersRecallPlayerScript::OnPlayerFirstLogin(Player *player)

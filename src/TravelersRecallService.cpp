@@ -101,7 +101,10 @@ namespace TravelersRecall
             return "Traveler's Recall: cannot teleport while you or target is on a transport.";
         }
 
-        if ((player->IsInFlight() || targetPlayer->IsInFlight()))
+        // The player's own state follows the same configuration as the other teleports.
+        // A target that is flying, dead or in a battleground is never a valid destination.
+        bool allowInFlight = sConfigMgr->GetOption<bool>("TravelersRecall.CanTeleport.InFlight", false);
+        if ((player->IsInFlight() && !allowInFlight) || targetPlayer->IsInFlight())
         {
             return "Traveler's Recall: cannot teleport while you or target is flying.";
         }
@@ -118,17 +121,21 @@ namespace TravelersRecall
             return "Traveler's Recall: cannot teleport while you or target is in combat.";
         }
 
-        if ((player->isDead() || targetPlayer->isDead()))
+        bool allowWhileDead = sConfigMgr->GetOption<bool>("TravelersRecall.CanTeleport.WhileDead", false);
+        if ((player->isDead() && !allowWhileDead) || targetPlayer->isDead())
         {
             return "Traveler's Recall: cannot teleport while you or target are dead.";
         }
 
-        if ((player->InBattleground() || targetPlayer->InBattleground()))
+        bool allowInBattleground = sConfigMgr->GetOption<bool>("TravelersRecall.CanTeleport.InBattleground", false);
+        if ((player->InBattleground() && !allowInBattleground) || targetPlayer->InBattleground())
         {
             return "Traveler's Recall: cannot teleport from or to battlegrounds.";
         }
 
-        if ((player->GetMap()->IsDungeon() || targetPlayer->GetMap()->IsDungeon()))
+        // Entering the target's dungeon or raid is still checked by the core (level, lockouts, raid group).
+        bool allowInDungeonOrRaid = sConfigMgr->GetOption<bool>("TravelersRecall.CanTeleport.InDungeonOrRaid", false);
+        if ((player->GetMap()->IsDungeon() || targetPlayer->GetMap()->IsDungeon()) && !allowInDungeonOrRaid)
         {
             return "Traveler's Recall: cannot teleport from or to dungeons or raids.";
         }

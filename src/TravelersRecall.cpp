@@ -1,6 +1,7 @@
 #include "TravelersRecall.h"
 #include "TravelersRecallPlayerScript.h"
 #include "TravelersRecallCommandScript.h"
+#include "TravelersRecallSpellScript.h"
 
 namespace TravelersRecall
 {
@@ -34,4 +35,5 @@ void Addmod_travelers_recallScripts()
 {
     new TravelersRecallPlayerScript();
     new TravelersRecallCommandScript();
+    AddTravelersRecallSpellScripts();
 }

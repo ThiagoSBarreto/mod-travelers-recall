@@ -2,27 +2,20 @@
 
 Progressive fast-travel system for AzerothCore.
 
-[![GitHub Sponsors](https://img.shields.io/badge/GitHub%20Sponsors-support-ff69b4?logo=github)](https://github.com/sponsors/ThiagoSBarreto)
-[![Buy Me a Coffee](https://img.shields.io/badge/Buy%20me%20a%20coffee-FFDD00?logo=buymeacoffee&logoColor=black&style=flat)](https://buymeacoffee.com/thiagosbarreto)
 ![World of Warcraft Client](https://img.shields.io/badge/World%20of%20Warcraft%20Client-3.3.5a-blue)
 
 ---
 
-## October 27, 2026 - Bugfix 1.1.1 Released
+## November 19, 2026 - Version 1.4.1 Released
 
-A minor (but with major drawback) bugfix.
+63 new locations and fixes for several broken ones, after a full check of every location against AzerothCore's `game_tele` positions, AreaTable area IDs and flight master spawns.
 
-Fixed bots not teleporting when you're the party leader.
-> Now when enabled on the configuration file AND you're on the Playerbots branch of AzerothCore
-> bots will teleport with you.
+* Added 49 quest hubs from [Tntdruid's fork](https://github.com/Tntdruid/mod-travelers-recall/commit/b04b4ac93d836646088bf13941a63d3ac0eb0a58), including Hammerfall, Stonard, Grom'gol Base Camp, Theramore Isle and all of Horde Northrend
+* Added 14 flight points that had no location, such as The Bulwark, Shatter Point, The Argent Vanguard and Death's Rise
+* Fixed Warsong Hold and The Exodar, which teleported to the wrong place, and Wildhammer Stronghold, Thrallmar, Mirage Raceway and two wrong zone icons
 
 > [!NOTE]
-> If you're not using the Playerbots branch, you'll just teleport.
-
-Fixed places discovery, thanks to [EvilTactician](https://github.com/EvilTactician)
-> Was added a sub-zone detection that when wrong, now it's fixed.
-
-As always, thank you so much for using the module! If you encounter any issues, please open an issue.
+> Apply the database updates after updating. Update the [client addon](https://github.com/EvilTactician/TravelersRecall) to version 1.3.1 so the new locations are grouped under their zone and region.
 
 ---
 
@@ -31,6 +24,21 @@ As always, thank you so much for using the module! If you encounter any issues, 
 Traveler's Recall is a progressive teleport system for AzerothCore.
 
 Players unlock travel locations by discovering cities and important places across the world. Once a destination is unlocked, it becomes available through the Traveler's Recall client addon.
+
+---
+
+## Images
+
+<img width="49%" alt="image" src="https://github.com/user-attachments/assets/08c68f98-80b7-4360-9f38-a936e4f60326" />
+<img width="49%" alt="image" src="https://github.com/user-attachments/assets/819b89fd-5ab5-4777-9ce1-fa57c4cb5042" />
+<details>
+<summary>View more screenshots</summary>
+<img width="49%" alt="image" src="https://github.com/user-attachments/assets/855c04bd-0f93-4b1a-81f1-de1d8c67e403" />
+<img width="49%" alt="image" src="https://github.com/user-attachments/assets/86e348e4-43a4-46f8-a61b-bd9d9b786f15" />
+
+<img width="365" height="124" alt="image" src="https://github.com/user-attachments/assets/ce9a2e54-49b0-42f1-925c-bc1e58f583ed" />
+<img width="524" height="149" alt="image" src="https://github.com/user-attachments/assets/091b803a-129f-46bc-a51a-764ba5aceac1" />
+</details>
 
 ---
 
@@ -44,7 +52,8 @@ Players unlock travel locations by discovering cities and important places acros
 * Custom unlockable locations
 * Level requirement support
 * Initial unlocked teleports
-* Teleport to a Friend
+* Teleport to a Friend, with its own configurable cooldown
+* Optional 3-second cast before teleporting, cancellable without starting the cooldown
 * GM Commands
 * Optional party bot teleport support (enable `TravelersRecall.TeleportPartyBots` in the configuration)
 * Optional Headless-client teleport support (enable `TravelersRecall.TeleportHeadlessClient` in the configuration)
@@ -53,7 +62,7 @@ Players unlock travel locations by discovering cities and important places acros
 
 ## Required Addon
 
-This module requires the separate client addon: [**TravelersRecall — Client Addon**](https://github.com/NecroHome/TravelersRecall).
+This module requires the separate client addon: [**TravelersRecall — Client Addon**](https://github.com/EvilTactician/TravelersRecall).
 
 The addon provides the user interface used to browse and select unlocked teleport locations.
 
@@ -77,7 +86,7 @@ Example:
 
 ```bash
 cd /path/to/azerothcore/modules
-git clone https://github.com/NecroHome/mod-travelers-recall.git
+git clone https://github.com/EvilTactician/mod-travelers-recall.git
 ```
 
 ### 1.2. Rebuild AzerothCore
@@ -137,7 +146,7 @@ azerothcore/
 
 ### 1.5. Install the Client Addon
 
-Download the client addon from: [**TravelersRecall — Client Addon**](https://github.com/NecroHome/TravelersRecall).
+Download the client addon from: [**TravelersRecall — Client Addon**](https://github.com/EvilTactician/TravelersRecall).
 
 Install it into your World of Warcraft client directory.
 
@@ -351,6 +360,23 @@ The faction setting applies to every character of that faction, and the race set
 
 ---
 
+### 2.9. Cast Time Before Teleporting
+
+Set `TravelersRecall.CastTime.Enable` to `1` to make players cast before they teleport:
+
+```ini
+TravelersRecall.CastTime.Enable = 1
+```
+
+* `0` (default): Players teleport instantly.
+* `1`: Players cast "Translocate" for 3 seconds, with the cast bar and visual of the Blood Elf translocation orbs, then teleport.
+
+Moving, jumping or pressing Escape cancels the cast. A cancelled cast does not teleport and does not start the cooldown. Mounted players are dismounted when the cast starts. Party bots teleport with the player when the cast finishes.
+
+> The cast uses the "Translocate" spell (26566) from the Duskwither Spire orbs in Eversong Woods. The SQL update binds the module's spell script to it; the orbs themselves keep working as before.
+
+---
+
 ## 3. Teleport to a Friend
 
 The `Teleport to a Friend` option teleports the player to the currently selected character.
@@ -361,11 +387,18 @@ The teleport is allowed only when all of the following conditions are met for bo
 
 * The selected player is online.
 * The selected player is in the same group.
-* Both players are in the overworld.
-* Neither player is on a transport, in flight, dead, in a battleground, dungeon, or raid.
-* Stealth and combat restrictions follow the configuration.
+* Neither player is on a transport.
+* The selected player is not in flight, dead or in a battleground.
+* Flight, stealth, combat, death, battleground, dungeon and raid restrictions follow the same `TravelersRecall.CanTeleport.*` settings as the other locations. The dungeon and raid setting applies to both players, so teleporting into a group member's dungeon or raid requires `TravelersRecall.CanTeleport.InDungeonOrRaid = 1`.
+* The player meets the normal entry requirements of the selected player's map, such as level, attunement, lockouts and raid group.
 
-> The default cooldown is **24 hours (86400 seconds)** and is configured in the database.
+The cooldown is **24 hours (86400 seconds)** by default and is configured in the database. To change it without editing the database, set `TravelersRecall.FriendCooldown` in the configuration file:
+
+* `-1` (default): Uses the cooldown from the database.
+* `0`: No cooldown.
+* Greater than `0`: Cooldown in seconds, for example `3600` for one hour.
+
+> This setting only affects Teleport to a Friend. Other locations keep their own cooldowns.
 
 ## 4. GM Commands
 
@@ -423,15 +456,7 @@ Removes all Traveler's Recall locations from the selected player or yourself.
 
 ---
 
-## 6. Images
-
-<img width="382" height="646" alt="image" src="https://github.com/user-attachments/assets/606e409e-e99a-411f-814f-87e14b324be0" />
-<img width="388" height="647" alt="image" src="https://github.com/user-attachments/assets/07f8ad7c-f936-43d4-a463-8b1322fc0deb" />
-<img width="365" height="124" alt="image" src="https://github.com/user-attachments/assets/ce9a2e54-49b0-42f1-925c-bc1e58f583ed" />
-
----
-
-## 7. FAQ
+## 6. FAQ
 
 Q: Can I contact you?
 
@@ -443,18 +468,21 @@ A: That's not a question, but feel free to open a feature request!
 
 ---
 
-## 8. Author
+## 7. Author
 
 **ThiagoSBarreto**
 LesmaSamuray
 
 ---
 
-## 9. Credits
+## 8. Credits
+
+* Fork maintained by [EvilTactician](https://github.com/EvilTactician), based on [ThiagoSBarreto/mod-travelers-recall](https://github.com/ThiagoSBarreto/mod-travelers-recall)
+* Quest hubs and location fixes from [Tntdruid's fork](https://github.com/Tntdruid/mod-travelers-recall)
 
 ---
 
-## 10. Update
+## 9. Update
 
 To update the module, follow these instructions:
 
@@ -471,7 +499,34 @@ To update the module, follow these instructions:
 
 ---
 
-## 11. Change Log
+## 10. Change Log
+
+### 19/11/2026 - Version 1.4.1
+
+* Added 49 quest hubs from [Tntdruid's fork](https://github.com/Tntdruid/mod-travelers-recall/commit/b04b4ac93d836646088bf13941a63d3ac0eb0a58): Hammerfall, Stonard, Grom'gol Base Camp, Rebel Camp, Kargath, Flame Crest, Aerie Peak, Revantusk Village, Chillwind Camp, Light's Hope Chapel, Falconwing Square, Fairbreeze Village, Tranquillien, Shattered Sun Staging Area, Sen'jin Village, Theramore Isle, Mudsprocket, Thalanaar, Forest Song, Talrendis Point, Talonbranch Glade, Mag'har Post, Sporeggar, Garadar, Aeris Landing, Vengeance Landing, New Agamand, Camp Winterhoof, Taunka'le Village, Bor'gorok Outpost, Agmar's Hammer, Venomspite, Conquest Hold, Camp Oneqwah, Grom'arsh Crash-Site, Camp Tunka'lo, Fizzcrank Airstrip, Stars' Rest, Wintergarde Keep, Fordragon Hold, Frosthold, Unu'pe, Wyrmrest Temple, Nesingwary Base Camp, River's Heart, K3, Brunnhildar Village, Dun Niffelem and The Shadow Vault
+* Added 14 flight points that had no location: The Bulwark, Thondroril River, Shatter Point, Apothecary Camp, Moa'ki Harbor, Amber Ledge, Transitus Shield, Kor'kron Vanguard, Windrunner's Overlook, Sunreaver's Command, The Argent Vanguard, Crusaders' Pinnacle, Death's Rise and Bouldercrag's Refuge
+* Fixed Warsong Hold: it used Wildhammer Stronghold's area ID and Shadowmoon Valley coordinates, so it never unlocked in Borean Tundra and teleported to an invalid spot
+* Fixed The Exodar: it teleported to Ironforge's coordinates on the Outland map
+* Fixed Wildhammer Stronghold unlocking anywhere in Shadowmoon Valley instead of at the stronghold
+* Fixed the Tharllmar typo (now Thrallmar) and Mirage Raceway's icon, made Mirage Raceway neutral, and corrected the Brackenwall Village and Telaar icons
+
+### 14/11/2026 - Version 1.3.1
+
+* Added Shadowprey Village and Nijel's Point
+
+### 13/11/2026 - Version 1.3.0
+
+* Teleport to a Friend follows the `TravelersRecall.CanTeleport.*` settings like the other locations, instead of always blocking flight, death, battlegrounds, dungeons and raids (see section 3)
+* Teleport to a Friend checks the normal entry requirements of the target's map, and no longer starts the cooldown when the teleport fails
+* Added Tarren Mill, Sun Rock Retreat and Stonetalon Peak
+
+### 09/11/2026 - Version 1.2.0
+
+* **New feature:** Cast time before teleporting
+    * If enabled in the configuration file (`TravelersRecall.CastTime.Enable`), players cast "Translocate" for 3 seconds before teleporting (see section 2.9)
+    * Moving, jumping or pressing Escape cancels the cast without starting the cooldown
+* **New feature:** Separate cooldown for Teleport to a Friend (`TravelersRecall.FriendCooldown`, see section 3)
+* Fixed compile errors on the Playerbots branch of AzerothCore ([#34](https://github.com/ThiagoSBarreto/mod-travelers-recall/issues/34))
 
 ### 27/10/2026 - Version 1.1.1
 
