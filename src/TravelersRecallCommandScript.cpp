@@ -1,6 +1,7 @@
 #include "TravelersRecallCommandScript.h"
 #include "TravelersRecallPlayerScript.h"
 #include "TravelersRecallService.h"
+#include "TravelersRecallSpellScript.h"
 
 #ifdef MOD_PLAYERBOTS
 #include "PlayerbotMgr.h"
@@ -69,9 +70,13 @@ std::string TravelersRecallCommandScript::BuildCooldownRemainingText(uint32 rema
     return message;
 }
 
-bool TravelersRecallCommandScript::HandleTeleportToFriend(Player *player, ChatHandler *handler, uint32 locationId, uint32 cooldown)
+bool TravelersRecallCommandScript::HandleTeleportToFriend(Player *player, ChatHandler *handler, uint32 locationId, uint32 cooldown, bool allowCast, ObjectGuid targetGuid)
 {
-    ObjectGuid targetGuid = player->GetTarget();
+    // A finished cast passes the target chosen when the cast started.
+    if (!targetGuid)
+    {
+        targetGuid = player->GetTarget();
+    }
 
     if (!targetGuid)
     {
@@ -98,6 +103,13 @@ bool TravelersRecallCommandScript::HandleTeleportToFriend(Player *player, ChatHa
         cooldown = sConfigMgr->GetOption<uint32>("TravelersRecall.DefaultCooldown", 0);
     }
 
+    // Optional cooldown for Teleport to Friend only. -1 (default) keeps the cooldown of the database row.
+    int32 friendCooldown = sConfigMgr->GetOption<int32>("TravelersRecall.FriendCooldown", -1);
+    if (friendCooldown >= 0)
+    {
+        cooldown = static_cast<uint32>(friendCooldown);
+    }
+
     if (cooldown > 0)
     {
         uint32 remaining = TravelersRecall::GetCooldownRemaining(player, locationId);
@@ -121,14 +133,25 @@ bool TravelersRecallCommandScript::HandleTeleportToFriend(Player *player, ChatHa
         return true;
     }
 
-    player->TeleportTo(
+    if (allowCast && TravelersRecall::StartRecallCast(player, handler, locationId, targetGuid))
+    {
+        return true;
+    }
+
+    // No TELE_TO_GM_MODE: the core checks whether the player may enter the target's map
+    // (level, attunement, lockouts, raid group), the same as for the other teleports.
+    if (!player->TeleportTo(
         selectedPlayer->GetMapId(),
         selectedPlayer->GetPositionX(),
         selectedPlayer->GetPositionY(),
         selectedPlayer->GetPositionZ() + 0.25f,
         player->GetOrientation(),
-        TELE_TO_GM_MODE,
-        selectedPlayer);
+        0,
+        selectedPlayer))
+    {
+        handler->SendSysMessage("Traveler's Recall: teleportation failed.");
+        return true;
+    }
 
     if (cooldown > 0)
     {
@@ -139,6 +162,8 @@ bool TravelersRecallCommandScript::HandleTeleportToFriend(Player *player, ChatHa
             cooldownEnd,
             player->GetGUID().GetCounter(),
             locationId);
+
+        TravelersRecall::SendCooldownMessage(player, locationId, cooldown);
     }
 
     handler->PSendSysMessage("Traveler's Recall: teleported.");
@@ -149,7 +174,7 @@ bool TravelersRecallCommandScript::HandleTeleportToFriend(Player *player, ChatHa
 bool TravelersRecallCommandScript::SendListForPlayer(Player *player)
 {
     QueryResult unlocks = CharacterDatabase.Query(
-        "SELECT location_id FROM custom_travelers_recall_unlocks WHERE guid = {}",
+        "SELECT location_id, cooldown_end FROM custom_travelers_recall_unlocks WHERE guid = {}",
         player->GetGUID().GetCounter());
 
     if (!unlocks)
@@ -158,12 +183,14 @@ bool TravelersRecallCommandScript::SendListForPlayer(Player *player)
     }
 
     bool canTeleportToFriend = sConfigMgr->GetOption<bool>("TravelersRecall.TeleportToFriendEnabled", false);
+    uint32 now = duration_cast<Seconds>(GameTime::GetSystemTime().time_since_epoch()).count();
 
     do
     {
         Field *unlockFields = unlocks->Fetch();
 
         uint32 locationId = unlockFields[0].Get<uint32>();
+        uint32 cooldownEnd = unlockFields[1].Get<uint32>();
 
         QueryResult location = WorldDatabase.Query(
             "SELECT area_id, name, map_id, icon FROM custom_travelers_recall_locations WHERE id = {}",
@@ -185,6 +212,14 @@ bool TravelersRecallCommandScript::SendListForPlayer(Player *player)
         if (areaId == -1 && mapId == -1 && canTeleportToFriend == false)
         {
             continue;
+        }
+
+        // Metadata first, so the addon can place the entry when TR_LIST arrives.
+        TravelersRecall::SendLocationMeta(player, locationId, areaId);
+
+        if (cooldownEnd > now)
+        {
+            TravelersRecall::SendCooldownMessage(player, locationId, cooldownEnd - now);
         }
 
         std::string message = Acore::StringFormat(
@@ -211,6 +246,11 @@ bool TravelersRecallCommandScript::HandleTeleportCommand(ChatHandler *handler, c
     Player *player = handler->GetPlayer();
     uint32 locationId = atoi(args);
 
+    return TeleportToLocation(player, handler, locationId, true);
+}
+
+bool TravelersRecallCommandScript::TeleportToLocation(Player *player, ChatHandler *handler, uint32 locationId, bool allowCast, ObjectGuid targetGuid)
+{
     if (!TravelersRecall::CanPlayerTeleport(player, handler, locationId))
     {
         return true;
@@ -235,7 +275,7 @@ bool TravelersRecallCommandScript::HandleTeleportCommand(ChatHandler *handler, c
 
     if (areaId == -1 && mapId == -1 && canTeleportToFriend == true)
     {
-        return HandleTeleportToFriend(player, handler, locationId, cooldown);
+        return HandleTeleportToFriend(player, handler, locationId, cooldown, allowCast, targetGuid);
     }
 
     float x = fields[2].Get<float>();
@@ -264,6 +304,14 @@ bool TravelersRecallCommandScript::HandleTeleportCommand(ChatHandler *handler, c
 
             return true;
         }
+    }
+
+    // With a cast time the teleport happens when the cast finishes, which calls this
+    // function again with allowCast = false. A cancelled cast teleports nothing and
+    // starts no cooldown.
+    if (allowCast && TravelersRecall::StartRecallCast(player, handler, locationId))
+    {
+        return true;
     }
 
     if (!player->TeleportTo(mapId, x, y, z, o))
@@ -337,6 +385,8 @@ bool TravelersRecallCommandScript::HandleTeleportCommand(ChatHandler *handler, c
             cooldownEnd,
             player->GetGUID().GetCounter(),
             locationId);
+
+        TravelersRecall::SendCooldownMessage(player, locationId, cooldown);
     }
 
     handler->PSendSysMessage(
@@ -397,12 +447,12 @@ bool TravelersRecallCommandScript::HandleLearnCommand(ChatHandler *handler, char
 
     handler->SendSysMessage("Traveler's Recall: location unlocked.");
 
-    TravelersRecall::SendUnlockMessage(target, locationId, locationName, icon);
+    TravelersRecall::SendUnlockMessage(target, locationId, static_cast<int32>(areaId), locationName, icon);
 
     return true;
 }
 
-bool TravelersRecallCommandScript::HandleLearnAllCommand(ChatHandler *handler, char const *args)
+bool TravelersRecallCommandScript::HandleLearnAllCommand(ChatHandler *handler, char const * /*args*/)
 {
     Player *target = handler->getSelectedPlayerOrSelf();
 
@@ -414,7 +464,7 @@ bool TravelersRecallCommandScript::HandleLearnAllCommand(ChatHandler *handler, c
     uint32 faction = target->GetTeamId() == TEAM_ALLIANCE ? 1 : 2;
 
     QueryResult result = WorldDatabase.Query(
-        "SELECT id, name, icon FROM custom_travelers_recall_locations WHERE faction IN (0, {})",
+        "SELECT id, name, icon, area_id FROM custom_travelers_recall_locations WHERE faction IN (0, {})",
         faction);
 
     if (!result)
@@ -432,6 +482,7 @@ bool TravelersRecallCommandScript::HandleLearnAllCommand(ChatHandler *handler, c
         uint32 locationId = fields[0].Get<uint32>();
         std::string locationName = fields[1].Get<std::string>();
         std::string icon = fields[2].Get<std::string>();
+        int32 areaId = fields[3].Get<int32>();
 
         TravelersRecallPlayerScript::CacheUnlock(target, locationId);
 
@@ -440,7 +491,7 @@ bool TravelersRecallCommandScript::HandleLearnAllCommand(ChatHandler *handler, c
             guid,
             locationId);
 
-        TravelersRecall::SendUnlockMessage(target, locationId, locationName, icon);
+        TravelersRecall::SendUnlockMessage(target, locationId, areaId, locationName, icon);
 
     } while (result->NextRow());
 
@@ -501,7 +552,7 @@ bool TravelersRecallCommandScript::HandleRemoveCommand(ChatHandler *handler, cha
     return true;
 }
 
-bool TravelersRecallCommandScript::HandleRemoveAllCommand(ChatHandler *handler, char const *args)
+bool TravelersRecallCommandScript::HandleRemoveAllCommand(ChatHandler *handler, char const * /*args*/)
 {
     Player *target = handler->getSelectedPlayerOrSelf();
 
@@ -592,7 +643,7 @@ bool TravelersRecallCommandScript::HandleCooldownCommand(ChatHandler *handler, c
     return true;
 }
 
-bool TravelersRecallCommandScript::HandleCooldownListCommand(ChatHandler *handler, char const *args)
+bool TravelersRecallCommandScript::HandleCooldownListCommand(ChatHandler *handler, char const * /*args*/)
 {
     Player *player = handler->getSelectedPlayerOrSelf();
 
@@ -674,6 +725,8 @@ bool TravelersRecallCommandScript::HandleCooldownResetCommand(ChatHandler *handl
         player->GetGUID().GetCounter(),
         locationId);
 
+    TravelersRecall::SendCooldownMessage(player, locationId, 0);
+
     QueryResult locationName = WorldDatabase.Query(
         "SELECT name FROM custom_travelers_recall_locations WHERE id = {}",
         locationId);
@@ -693,7 +746,7 @@ bool TravelersRecallCommandScript::HandleCooldownResetCommand(ChatHandler *handl
     return true;
 }
 
-bool TravelersRecallCommandScript::HandleCooldownResetAllCommand(ChatHandler *handler, char const *args)
+bool TravelersRecallCommandScript::HandleCooldownResetAllCommand(ChatHandler *handler, char const * /*args*/)
 {
     Player *player = handler->getSelectedPlayerOrSelf();
 
@@ -705,6 +758,8 @@ bool TravelersRecallCommandScript::HandleCooldownResetAllCommand(ChatHandler *ha
     CharacterDatabase.Execute(
         "UPDATE custom_travelers_recall_unlocks SET cooldown_end = 0 WHERE guid = {}",
         player->GetGUID().GetCounter());
+
+    TravelersRecall::SendCooldownMessage(player, 0, 0);
 
     handler->PSendSysMessage(
         "Traveler's Recall: all cooldowns reset.");

@@ -23,7 +23,9 @@ namespace TravelersRecall
     void AddTeleportToFriend(Player* player);
 
     void SendAddonMessage(Player* player, std::string const& message);
-    void SendUnlockMessage(Player* player, uint32 locationId, std::string const& locationName, std::string const& icon);
+    void SendLocationMeta(Player* player, uint32 locationId, int32 areaId);
+    void SendCooldownMessage(Player* player, uint32 locationId, uint32 remainingSeconds);
+    void SendUnlockMessage(Player* player, uint32 locationId, int32 areaId, std::string const& locationName, std::string const& icon);
     void SendRemoveMessage(Player* player, uint32 locationId);
 }
 

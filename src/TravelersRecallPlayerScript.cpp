@@ -1,4 +1,5 @@
 #include "TravelersRecallPlayerScript.h"
+#include "TravelersRecallSpellScript.h"
 
 #include "Chat.h"
 #include "Config.h"
@@ -346,7 +347,7 @@ void TravelersRecallPlayerScript::OnPlayerUpdateArea(Player *player, uint32 oldA
 
         ChatHandler(player->GetSession()).PSendSysMessage("New location unlocked: {}", location->name);
 
-        TravelersRecall::SendUnlockMessage(player, location->id, location->name, location->icon);
+        TravelersRecall::SendUnlockMessage(player, location->id, static_cast<int32>(location->areaId), location->name, location->icon);
     }
 }
 
@@ -409,6 +410,7 @@ void TravelersRecallPlayerScript::OnPlayerLogout(Player *player)
     uint32 guid = player->GetGUID().GetCounter();
     UnlocksByCharacter.erase(guid);
     LoadedCharacterUnlocks.erase(guid);
+    TravelersRecall::ClearRecallCast(player);
 }
 
 void TravelersRecallPlayerScript::OnPlayerFirstLogin(Player *player)
