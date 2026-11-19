@@ -528,6 +528,16 @@ To update the module, follow these instructions:
 * **New feature:** Separate cooldown for Teleport to a Friend (`TravelersRecall.FriendCooldown`, see section 3)
 * Fixed compile errors on the Playerbots branch of AzerothCore ([#34](https://github.com/ThiagoSBarreto/mod-travelers-recall/issues/34))
 
+### 16/11/2026 - Version 1.2.0
+
+> Requires client addon 1.2.0 or newer: [Tntdruid/TravelersRecall](https://github.com/Tntdruid/TravelersRecall/releases)
+
+* Added 54 quest hubs (incl. all of Horde Northrend, which had none)
+* Fixed Warsong Hold (wrong area_id and Outland coordinates), Wildhammer Stronghold area_id, the "Tharllmar" typo and a few icons
+* The server now sends `TR_META:<id>:<continent>:<zone>` so the addon can group the list by continent and sort it by zone and name
+    * Requires the updated client addon to take effect; older addons ignore the message
+* The server sends `TR_CD:<id>:<seconds>` (in the list, after a teleport and on GM cooldown resets; id `0` = all) so the addon can show remaining cooldowns on the buttons
+
 ### 27/10/2026 - Version 1.1.1
 
 * Fixed bots not teleporting with the party leader
