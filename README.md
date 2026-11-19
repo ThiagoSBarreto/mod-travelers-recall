@@ -6,7 +6,9 @@ Progressive fast-travel system for AzerothCore.
 
 ---
 
-## November 19, 2026 - Version 1.4.1 Released
+## November 19, 2026 - Version 1.5.0 Released
+
+## Big thanks to [EvilTactician](https://github.com/EvilTactician) and [Tntdruid](https://github.com/Tntdruid) for the love put into this.
 
 63 new locations and fixes for several broken ones, after a full check of every location against AzerothCore's `game_tele` positions, AreaTable area IDs and flight master spawns.
 
@@ -15,7 +17,7 @@ Progressive fast-travel system for AzerothCore.
 * Fixed Warsong Hold and The Exodar, which teleported to the wrong place, and Wildhammer Stronghold, Thrallmar, Mirage Raceway and two wrong zone icons
 
 > [!NOTE]
-> Apply the database updates after updating. Update the [client addon](https://github.com/EvilTactician/TravelersRecall) to version 1.3.1 so the new locations are grouped under their zone and region.
+> Apply the database updates after updating. Update the [client addon](https://github.com/ThiagoSBarreto/TravelersRecall) to version 1.3.1 so the new locations are grouped under their zone and region.
 
 ---
 
@@ -62,7 +64,7 @@ Players unlock travel locations by discovering cities and important places acros
 
 ## Required Addon
 
-This module requires the separate client addon: [**TravelersRecall — Client Addon**](https://github.com/EvilTactician/TravelersRecall).
+This module requires the separate client addon: [**TravelersRecall — Client Addon**](https://github.com/ThiagoSBarreto/TravelersRecall).
 
 The addon provides the user interface used to browse and select unlocked teleport locations.
 
@@ -86,7 +88,7 @@ Example:
 
 ```bash
 cd /path/to/azerothcore/modules
-git clone https://github.com/EvilTactician/mod-travelers-recall.git
+git clone https://github.com/ThiagoSBarreto/mod-travelers-recall.git
 ```
 
 ### 1.2. Rebuild AzerothCore
@@ -146,7 +148,7 @@ azerothcore/
 
 ### 1.5. Install the Client Addon
 
-Download the client addon from: [**TravelersRecall — Client Addon**](https://github.com/EvilTactician/TravelersRecall).
+Download the client addon from: [**TravelersRecall — Client Addon**](https://github.com/ThiagoSBarreto/TravelersRecall).
 
 Install it into your World of Warcraft client directory.
 
@@ -477,8 +479,8 @@ LesmaSamuray
 
 ## 8. Credits
 
-* Fork maintained by [EvilTactician](https://github.com/EvilTactician), based on [ThiagoSBarreto/mod-travelers-recall](https://github.com/ThiagoSBarreto/mod-travelers-recall)
-* Quest hubs and location fixes from [Tntdruid's fork](https://github.com/Tntdruid/mod-travelers-recall)
+* [EvilTactician](https://github.com/EvilTactician)
+* [Tntdruid](https://github.com/Tntdruid)
 
 ---
 
@@ -501,9 +503,17 @@ To update the module, follow these instructions:
 
 ## 10. Change Log
 
+### 19/11/2026 - Version 1.5.0
+* Merged both [EvilTactician](https://github.com/EvilTactician) and [Tntdruid's fork](https://github.com/Tntdruid) new features such as:
+    * Cast time when teleporting
+    * Group teleports by continent
+    * Showing reimaning cooldown
+    * Favorites
+    * New teleports locations
+
 ### 19/11/2026 - Version 1.4.1
 
-* Added 49 quest hubs from [Tntdruid's fork](https://github.com/Tntdruid/mod-travelers-recall/commit/b04b4ac93d836646088bf13941a63d3ac0eb0a58): Hammerfall, Stonard, Grom'gol Base Camp, Rebel Camp, Kargath, Flame Crest, Aerie Peak, Revantusk Village, Chillwind Camp, Light's Hope Chapel, Falconwing Square, Fairbreeze Village, Tranquillien, Shattered Sun Staging Area, Sen'jin Village, Theramore Isle, Mudsprocket, Thalanaar, Forest Song, Talrendis Point, Talonbranch Glade, Mag'har Post, Sporeggar, Garadar, Aeris Landing, Vengeance Landing, New Agamand, Camp Winterhoof, Taunka'le Village, Bor'gorok Outpost, Agmar's Hammer, Venomspite, Conquest Hold, Camp Oneqwah, Grom'arsh Crash-Site, Camp Tunka'lo, Fizzcrank Airstrip, Stars' Rest, Wintergarde Keep, Fordragon Hold, Frosthold, Unu'pe, Wyrmrest Temple, Nesingwary Base Camp, River's Heart, K3, Brunnhildar Village, Dun Niffelem and The Shadow Vault
+* Added 49 quest hubs from [Tntdruid](https://github.com/Tntdruid/mod-travelers-recall/commit/b04b4ac93d836646088bf13941a63d3ac0eb0a58): Hammerfall, Stonard, Grom'gol Base Camp, Rebel Camp, Kargath, Flame Crest, Aerie Peak, Revantusk Village, Chillwind Camp, Light's Hope Chapel, Falconwing Square, Fairbreeze Village, Tranquillien, Shattered Sun Staging Area, Sen'jin Village, Theramore Isle, Mudsprocket, Thalanaar, Forest Song, Talrendis Point, Talonbranch Glade, Mag'har Post, Sporeggar, Garadar, Aeris Landing, Vengeance Landing, New Agamand, Camp Winterhoof, Taunka'le Village, Bor'gorok Outpost, Agmar's Hammer, Venomspite, Conquest Hold, Camp Oneqwah, Grom'arsh Crash-Site, Camp Tunka'lo, Fizzcrank Airstrip, Stars' Rest, Wintergarde Keep, Fordragon Hold, Frosthold, Unu'pe, Wyrmrest Temple, Nesingwary Base Camp, River's Heart, K3, Brunnhildar Village, Dun Niffelem and The Shadow Vault
 * Added 14 flight points that had no location: The Bulwark, Thondroril River, Shatter Point, Apothecary Camp, Moa'ki Harbor, Amber Ledge, Transitus Shield, Kor'kron Vanguard, Windrunner's Overlook, Sunreaver's Command, The Argent Vanguard, Crusaders' Pinnacle, Death's Rise and Bouldercrag's Refuge
 * Fixed Warsong Hold: it used Wildhammer Stronghold's area ID and Shadowmoon Valley coordinates, so it never unlocked in Borean Tundra and teleported to an invalid spot
 * Fixed The Exodar: it teleported to Ironforge's coordinates on the Outland map
