@@ -65,6 +65,12 @@ or by clicking the minimap button.
 
 ---
 
+## Images
+<img width="414" height="659" alt="image" src="https://github.com/user-attachments/assets/9c6c7594-574c-40ad-89b6-618c9c8c1860" />
+<img width="412" height="667" alt="image" src="https://github.com/user-attachments/assets/4648c740-448c-43f5-b4bb-4fb00a97bb6f" />
+<img width="413" height="654" alt="image" src="https://github.com/user-attachments/assets/6aef8588-3622-4c93-9438-bd75c2ddecb3" />
+<img width="414" height="651" alt="image" src="https://github.com/user-attachments/assets/aeb05c05-30e3-4023-8d73-4dcd7f8d4503" />
+
 ## 1. Installation
 
 ### 1.1. Clone the Module
